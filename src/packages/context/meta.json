@@ -1,0 +1,10 @@
+{
+  "title": "Castor Context",
+  "priority": 10,
+  "pages": [
+    {
+      "name": "Introduction",
+      "file" : "intro.md"
+    }
+  ]
+}
