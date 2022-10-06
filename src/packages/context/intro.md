@@ -1,6 +1,8 @@
 # Introduction
 
-Context passing abstraction for modern PHP projects, inspired in [Golang's `context` package](https://pkg.go.dev/context).
+Context is an abstraction for passing request-scoped values down the call stack of an application.
+
+The public api is inspired in [Golang's `context` package](https://pkg.go.dev/context).
 
 ## Installation
 

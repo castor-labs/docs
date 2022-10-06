@@ -1,10 +1,26 @@
 {
   "title": "Castor Context",
-  "priority": 10,
+  "priority": 1000,
   "pages": [
     {
       "name": "Introduction",
       "file" : "intro.md"
+    },
+    {
+      "name": "Why this Library?",
+      "file": "why.md"
+    },
+    {
+      "name": "Guides",
+      "file": "guides.md"
+    },
+    {
+      "name": "Best Practices",
+      "file": "best-practices.md"
+    },
+    {
+      "name": "FAQ",
+      "file": "faq.md"
     }
   ]
 }
