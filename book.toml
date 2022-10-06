@@ -1,0 +1,18 @@
+[book]
+title = "Castor Labs"
+authors = ["Matias Navarro-Carter"]
+description = "Castor Labs"
+language = "en"
+
+[build]
+build-dir = "dist"
+create-missing = false
+
+[preprocessor.packages]
+command = "php packages"
+
+[output.html]
+additional-css = ["custom.css"]
+
+[output.html.search]
+limit-results = 15

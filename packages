@@ -1,0 +1,144 @@
+#!/usr/env/php
+<?php
+
+/**
+ * This is a pre-processor for Mdbook.
+ * It parses the documentation of Castor Packages
+ */
+
+$cmd = $argv[1] ?? '';
+$renderer = $argv[2] ?? '';
+
+if ($cmd === 'supports') {
+    if ($renderer === 'html') {
+        exit(0);
+    }
+
+    exit(1);
+}
+
+$input = STDIN;
+$stderr = STDERR;
+
+$contents = stream_get_contents($input);
+
+[$context, $book] = json_decode($contents, true);
+
+try {
+    $book = process_book($book);
+} catch (Throwable $e) {
+    debug($e->getMessage());
+    exit(1);
+}
+
+$json = json_encode($book, JSON_UNESCAPED_SLASHES);
+
+echo $json;
+
+function process_book(array $book): array
+{
+    $fullDir = __DIR__.'/src/packages';
+    $dir = scandir($fullDir.DIRECTORY_SEPARATOR);
+
+    $packages = new SplPriorityQueue();
+
+    // This process the list
+    foreach ($dir as $id) {
+        if ($id === '.' || $id === '..') {
+            continue;
+        }
+
+        $dirname = $fullDir.DIRECTORY_SEPARATOR.$id;
+        if (!is_dir($dirname)) {
+            continue;
+        }
+
+        debug('Processing directory: '.$dirname);
+
+        $metaFilename = $dirname.DIRECTORY_SEPARATOR.'meta.json';
+        if (!is_file($metaFilename)) {
+            continue;
+        }
+
+        debug('Meta file found: '.$metaFilename);
+
+        $meta = json_decode(file_get_contents($metaFilename), true);
+
+        $priority = $meta['priority'] ?? 0;
+        $title = $meta['title'] ?? '';
+        $pages = $meta['pages'] ?? [];
+
+        $chapter = [];
+        $subItems = [];
+
+        $hasReadme = false;
+
+        $readmeFilename = $dirname.DIRECTORY_SEPARATOR.'README.md';
+
+        if (is_file($readmeFilename)) {
+            $hasReadme = true;
+
+            $chapter = [
+                'name' => $title,
+                'content' => file_get_contents($readmeFilename),
+                'path' => "packages/$id/README.md",
+                'source_path' => "packages/$id/README.md",
+                'parent_names' => [],
+            ];
+        }
+
+        foreach ($pages as $i => $page) {
+            $name = $page['name'] ?? '';
+            $file = $page['file'] ?? '';
+
+            if ($file === '' || $name === '') {
+                debug("Invalid page entry on ${metaFilename} at index ${i}. Skipping...");
+            }
+
+            if ($i === 0 && !$hasReadme) {
+                $chapter = [
+                    'name' => $title,
+                    'content' => file_get_contents($dirname.DIRECTORY_SEPARATOR.$file),
+                    'path' => "packages/$id/{$file}",
+                    'source_path' => "packages/$id/{$file}",
+                    'parent_names' => [],
+                ];
+            }
+
+            $subItems[] = [
+                'Chapter' => [
+                    'name' => $page['name'],
+                    'content' => file_get_contents($dirname.DIRECTORY_SEPARATOR.$page['file']),
+                    'path' => "packages/$id/{$page['file']}",
+                    'source_path' => "packages/$id/{$page['file']}",
+                    'parent_names' => [$title],
+                    'sub_items' => [],
+                ],
+            ];
+        }
+
+        $chapter['sub_items'] = $subItems;
+        $packages->insert($chapter, $priority);
+        debug("Package $id has been processed");
+    }
+
+    $sectionOffset = 1;
+    foreach ($packages as $i => $package) {
+        $num = $i + $sectionOffset;
+        $package['number'] = [$num];
+
+        foreach ($package['sub_items'] as $ii => $item) {
+            $num2 = $ii + 1;
+            $package['sub_items'][$ii]['Chapter']['number'] = [$num, $num2];
+        }
+
+        $book['sections'][] = ['Chapter' => $package];
+    }
+
+    return $book;
+}
+
+function debug(string $message): void
+{
+    fwrite(STDERR, date('Y-m-d H:i:s').' [DEBUG] (processor::packages): '.$message.PHP_EOL);
+}

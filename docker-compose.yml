@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy.docs.castor.dev
+    ports: [ "80:80", "443:443" ]
+    volumes:
+      - .castor/docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./dist:/srv
+
+  app:
+    image: castor/docs:dev
+    build:
+      context: .castor/docker
+      dockerfile: ./app/Dockerfile
+      target: dev
+    container_name: app.docs.castor.dev
+    working_dir: /castor/app
+    volumes:
+      - .:/castor/app
+    user: castor
+    command: ["mdbook", "watch"]
