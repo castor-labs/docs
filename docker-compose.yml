@@ -16,6 +16,8 @@ services:
       context: .castor/docker
       dockerfile: ./app/Dockerfile
       target: dev
+      args:
+        UID: ${UID:?}
     container_name: app.docs.castor.dev
     working_dir: /castor/app
     volumes:
