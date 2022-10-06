@@ -17,7 +17,7 @@ services:
       dockerfile: ./app/Dockerfile
       target: dev
       args:
-        UID: ${UID:?}
+        UID: "${UID:-1001}"
     container_name: app.docs.castor.dev
     working_dir: /castor/app
     volumes:
