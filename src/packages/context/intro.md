@@ -1,4 +1,5 @@
-# Introduction
+Introduction
+============
 
 Context is an abstraction for passing request-scoped values down the call stack of an application.
 
