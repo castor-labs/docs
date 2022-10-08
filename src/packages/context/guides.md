@@ -1,6 +1,8 @@
 Guides & Examples
 =================
 
+Learn how to work with the `Context` api by following these guides and examples.
+
 ## Implementing Multi-Tenancy
 
 A common use case for many applications is to support multi-tenancy. Multi tenancy is the ability of an application
@@ -12,26 +14,26 @@ Let's suppose our imaginary application determines the tenant based on the subdo
 middleware:
 
 ```php
-#<?php
-#
-#namespace MyMultiTenantApp;
-#
-#use Castor\Context;
-#use Castor\Http\Handler;
-#use Castor\Http\Request;
-#use Castor\Http\ResponseWriter;
-#
-#class TenancyMiddleware implements Handler
-#{
-#    private Handler $next;
-#    private TenantRepository $tenants;
-    
-#    public function __construct(Handler $next, TenantRepository $tenants)
-#    {
-#        $this->next = $next;
-#        $this->tenants = $tenants;
-#    }
-#    
+<?php
+ 
+namespace MyMultiTenantApp;
+ 
+use Castor\Context;
+use Castor\Http\Handler;
+use Castor\Http\Request;
+use Castor\Http\ResponseWriter;
+ 
+class TenancyMiddleware implements Handler
+{
+     private Handler $next;
+     private TenantRepository $tenants;
+ 
+     public function __construct(Handler $next, TenantRepository $tenants)
+     {
+         $this->next = $next;
+         $this->tenants = $tenants;
+     }
+     
     public function handle(Context $ctx, ResponseWriter $wrt, Request $req): void
     {
         $hostname = $req->getUri()->getHostname();
@@ -59,7 +61,7 @@ middleware:
         // And we pass it to the next handler
         $this->next->handle($ctx, $wrt, $req);
     }
-#}
+}
 ```
 
 So, you have "captured" some important information about the context in which the request is being made, which
@@ -71,23 +73,23 @@ based on the absence or presence of such value.
 For instance, we want to list all the users, but only those of the current tenant:
 
 ```php
-#<?php
-#
-#namespace MyMultiTenantApp;
-#
-#use Castor\Context;
-#use MyMultiTenantApp\QueryBuilder;
-#use MyMultiTenantApp\Tenant;
-#
-#class UserRepository
-#{
-#    private QueryBuilder $query;
-#    
-#    public function __construct(QueryBuilder $query)
-#    {
-#        $this->query = $query;
-#    }
-#    
+<?php
+
+namespace MyMultiTenantApp;
+
+use Castor\Context;
+use MyMultiTenantApp\QueryBuilder;
+use MyMultiTenantApp\Tenant;
+
+class UserRepository
+{
+    private QueryBuilder $query;
+    
+    public function __construct(QueryBuilder $query)
+    {
+        $this->query = $query;
+    }
+    
     public function all(Context $ctx): array
     {
         $query = $this->query->select()->from('users');
@@ -99,7 +101,7 @@ For instance, we want to list all the users, but only those of the current tenan
         
         return $query->execute();
     }
-#}
+}
 ```
 
 The context interface provides several benefits in this case. It's transparency means you could deploy
@@ -166,33 +168,6 @@ namespace MyApp\Logger;
 
 use Castor\Context;
 
-#class LogContext
-#{
-#    protected array $data;
-#    
-#    public function __construct()
-#    {
-#        $this->data = [];
-#    }
-#    
-#    public function add(string $key, mixed $value): LogContext
-#    {
-#        $this->data[$key] = $value;
-#        return $this;
-#    }
-#    
-#    public function merge(array $data): LogContext
-#    {
-#        $this->data = array_merge($this->data, $data);
-#        return $this;
-#    }
-#    
-#    public function toArray(): array
-#    {
-#        return $this->data;
-#    }
-#}
-
 // First we create an enum for the key
 enum Key
 {
@@ -233,67 +208,6 @@ Now, let's work in the middleware that will capture our request:
 ```php
 <?php
 
-#namespace MyApp\Logger;
-#
-#use Castor\Context;
-#
-#class LogContext
-#{
-#    protected array $data;
-#    
-#    public function __construct()
-#    {
-#        $this->data = [];
-#    }
-#    
-#    public function add(string $key, mixed $value): LogContext
-#    {
-#        $this->data[$key] = $value;
-#        return $this;
-#    }
-#    
-#    public function merge(array $data): LogContext
-#    {
-#        $this->data = array_merge($this->data, $data);
-#        return $this;
-#    }
-#    
-#    public function toArray(): array
-#    {
-#        return $this->data;
-#    }
-#}
-#
-#// First we create an enum for the key
-#enum Key
-#{
-#    case LOG_CONTEXT
-#}
-#
-#// This function add an entry to the stored LogContext
-#function with_log_context(Context $ctx, string $key, mixed $value): Context
-#{
-#    $logCtx = $ctx->value(Key::LOG_CONTEXT);
-#    
-#    // If we have an instance already, we mutate that, and we don't touch the context
-#    if ($logCtx instanceof LogContext) {
-#        $logCtx->add($key, $value);
-#        return $ctx;   
-#    }
-#    
-#    // We mutate the context only if we don't have a LogContext object in it
-#    $logCtx = new LogContext();
-#    $logCtx->add($key, $value);
-#    
-#    return Context\with_value($ctx, Key::LOG_CONTEXT, $logCtx);
-#}
-#
-#function get_log_context(Context $ctx): LogContext
-#{
-#    // We try to not throw exceptions but provide defaults instead.
-#    return $ctx->value(Key::LOG_CONTEXT) ?? new LogContext();
-#}
-#
 namespace MyApp\Http;
 
 use MyApp\Logger;
@@ -332,100 +246,6 @@ Then, the only bit left to do is to consume this from the code that calls the lo
 
 ```php
 <?php
-
-#namespace MyApp\Logger;
-#
-#use Castor\Context;
-#
-#class LogContext
-#{
-#    protected array $data;
-#    
-#    public function __construct()
-#    {
-#        $this->data = [];
-#    }
-#    
-#    public function add(string $key, mixed $value): LogContext
-#    {
-#        $this->data[$key] = $value;
-#        return $this;
-#    }
-#    
-#    public function merge(array $data): LogContext
-#    {
-#        $this->data = array_merge($this->data, $data);
-#        return $this;
-#    }
-#    
-#    public function toArray(): array
-#    {
-#        return $this->data;
-#    }
-#}
-#
-#// First we create an enum for the key
-#enum Key
-#{
-#    case LOG_CONTEXT
-#}
-#
-#// This function add an entry to the stored LogContext
-#function with_log_context(Context $ctx, string $key, mixed $value): Context
-#{
-#    $logCtx = $ctx->value(Key::LOG_CONTEXT);
-#    
-#    // If we have an instance already, we mutate that, and we don't touch the context
-#    if ($logCtx instanceof LogContext) {
-#        $logCtx->add($key, $value);
-#        return $ctx;   
-#    }
-#    
-#    // We mutate the context only if we don't have a LogContext object in it
-#    $logCtx = new LogContext();
-#    $logCtx->add($key, $value);
-#    
-#    return Context\with_value($ctx, Key::LOG_CONTEXT, $logCtx);
-#}
-#
-#function get_log_context(Context $ctx): LogContext
-#{
-#    // We try to not throw exceptions but provide defaults instead.
-#    return $ctx->value(Key::LOG_CONTEXT) ?? new LogContext();
-#}
-#
-#namespace MyApp\Http;
-#
-#use MyApp\Logger;
-#use Castor\Context;
-#use Castor\Http\Handler;
-#use Castor\Http\Request;
-#use Castor\Http\ResponseWriter;
-#use Ramsey\Uuid;
-#use function MyApp\Logger\with_log_context
-#
-#class RequestIdMiddleware implements Handler
-#{
-#    private Handler $next;
-#    
-#    public function __construct(Handler $next)
-#    {
-#        $this->next = $next;
-#    }
-#    
-#    public function handle(Context $ctx, ResponseWriter $wrt, Request $req): void
-#    {
-#        $requestId = req->getHeaders()->get('X-Request-Id');
-#        
-#        // If no request id comes, we assign one
-#        if ($requestId === '') {
-#            $requestId = Uuid::v4();
-#        }
-#        
-#        $ctx = with_log_context($ctx, 'request_id', $requestId);
-#        $this->next->handle($ctx, $wrt, $req);
-#    }
-#}
 
 namespace MyApp\Services;
 
