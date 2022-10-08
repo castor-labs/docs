@@ -50,7 +50,7 @@ So, bottom line, don't overuse `Context\with_value`. This means that if you have
 Again, the performance impact of not doing this is negligible, so measure and make decisions based on that. 
 
 > In a potential new major version, we are considering swapping the `Context\with_value()` implementation by using a
-[`DS\Map` if the extension is available][https://www.php.net/manual/en/class.ds-map.php] to avoid the performance
+[`DS\Map` if the extension is available](https://www.php.net/manual/en/class.ds-map.php) to avoid the performance
 penalty.
 
 ## `Context` SHOULD NOT contain immutable values
