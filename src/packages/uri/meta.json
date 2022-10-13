@@ -1,0 +1,26 @@
+{
+  "title": "Castor Uri",
+  "priority": 950,
+  "pages": [
+    {
+      "name": "Introduction",
+      "file" : "intro.md"
+    },
+    {
+      "name": "Why this Library?",
+      "file": "why.md"
+    },
+    {
+      "name": "API Overview",
+      "file": "overview.md"
+    },
+    {
+      "name": "How To Guide",
+      "file": "howto.md"
+    },
+    {
+      "name": "FAQ",
+      "file": "faq.md"
+    }
+  ]
+}
