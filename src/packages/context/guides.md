@@ -56,7 +56,7 @@ class TenancyMiddleware implements Handler
         }
         
         // Once we have the tenant, we store it in the context
-        $ctx = Context\with_value($ctx, 'tenant', $tenant);
+        $ctx = Context\withValue($ctx, 'tenant', $tenant);
         
         // And we pass it to the next handler
         $this->next->handle($ctx, $wrt, $req);
@@ -189,7 +189,7 @@ function with_log_context(Context $ctx, string $key, mixed $value): Context
     $logCtx = new LogContext();
     $logCtx->add($key, $value);
     
-    return Context\with_value($ctx, Key::LOG_CONTEXT, $logCtx);
+    return Context\withValue($ctx, Key::LOG_CONTEXT, $logCtx);
 }
 
 function get_log_context(Context $ctx): LogContext

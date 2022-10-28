@@ -43,10 +43,10 @@ its internal state like `set(mixed $key, mixed $value): void`. Although we consi
 copied from Go the idea to make this interface unavoidably immutable. You can only "store" new values by composing 
 a new `Context`, and we have provided some functions to ease that process.
 
-## The `Context\fallback()` and the `Context\with_value()` functions
+## The `Context\nil()` and the `Context\withValue()` functions
 
 First, in order to "store" a value in the context, you need to get the fallback context. This is some sort of "empty"
-context that always returns `null`. You call `Context\fallback()` to do this.
+context that always returns `null`. You call `Context\nil()` to do this.
 
 ```php
 <?php
@@ -54,12 +54,12 @@ context that always returns `null`. You call `Context\fallback()` to do this.
 use Castor\Context;
 
 // This gives you a context that always returns null for any key
-$ctx = Context\fallback();
+$ctx = Context\nil();
 
 var_dump($ctx->value('foo')); // Prints: NULL
 ```
 
-Once you have a `Context` instance, you can "store" a value in it by calling `Context\with_value()`:
+Once you have a `Context` instance, you can "store" a value in it by calling `Context\withValue()`:
 
 ```php
 <?php
@@ -67,10 +67,10 @@ Once you have a `Context` instance, you can "store" a value in it by calling `Co
 use Castor\Context;
 
 // This gives you a context that always returns null for any key
-$ctx = Context\fallback();
+$ctx = Context\nil();
 
 // This returns a new context with the stored key value pair
-$ctx = Context\with_value($ctx, 'foo', 'bar');
+$ctx = Context\withValue($ctx, 'foo', 'bar');
 
 var_dump($ctx->value('foo')); // Prints: string(3) "bar"
 ```

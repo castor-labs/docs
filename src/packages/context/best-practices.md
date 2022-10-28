@@ -27,7 +27,7 @@ to minimize as much as possible the space impact that has in your method's argum
 
 ## Enums SHOULD be used as keys rather than strings
 
-When calling `Context\with_value()` prefer enums as keys. They are lightweight, offer autocompletion, and they cannot 
+When calling `Context\withValue()` prefer enums as keys. They are lightweight, offer autocompletion, and they cannot 
 collide like strings could. In the case that your application still does not support PHP 8.1 and above, you MUST use
 string keys with a vendor namespace.
 
@@ -38,18 +38,18 @@ instance, if you are using the `Context` api in PSR-7 applications, it is very l
 will be stored in the Request attributes (which is implemented by an array). This is acceptable, but for a better
 HTTP layer supporting context natively, we recommend `castor/http`.
 
-## `Context\with_value` SHOULD NOT be overused
+## `Context\withValue` SHOULD NOT be overused
 
 Because of its particular implementation, every time you add a value to a `Context`, you increase the potential call
 stack size to reach the value by 1. Although the performance impact of this is negligent, is still slower than fetching
 a value directly from a map, for instance.
 
-So, bottom line, don't overuse `Context\with_value`. This means that if you have to store related values in
+So, bottom line, don't overuse `Context\withValue`. This means that if you have to store related values in
 `Context`, store a data structure instead and not each value individually.
 
 Again, the performance impact of not doing this is negligible, so measure and make decisions based on that. 
 
-> In a potential new major version, we are considering swapping the `Context\with_value()` implementation by using a
+> In a potential new major version, we are considering swapping the `Context\withValue()` implementation by using a
 [`DS\Map` if the extension is available](https://www.php.net/manual/en/class.ds-map.php) to avoid the performance
 penalty.
 
@@ -61,7 +61,7 @@ safe for manipulation and free of unexpected side effects.
 As long as `Context` holds values derived from the request, whose lifetime will also die with it, then it is safe to
 store mutable values in it. If you store immutable values and decide that a new reference of that value needs to be
 passed down the call stack it means the value should have never been immutable in the first place. You'll have to call
-`Context\with_value` again and "override" that value.
+`Context\withValue` again and "override" that value.
 
 ## Services SHOULD NOT be stored inside `Context`
 
